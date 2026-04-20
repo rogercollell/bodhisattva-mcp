@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 """Email-specific framing prompt.
 
 Extends the base wisdom-frame prompt with context specific to sending email:
