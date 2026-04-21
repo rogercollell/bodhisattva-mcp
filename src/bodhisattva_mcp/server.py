@@ -29,8 +29,6 @@ from bodhisattva_mcp.journal import Journal
 from bodhisattva_mcp.tools.send_email import SendEmailInput, handle_send_email
 from bodhisattva_mcp.web.app import create_app
 
-logger = logging.getLogger(__name__)
-
 _TOOL_NAME = "bodhisattva.send_email"
 _TOOL_DESCRIPTION = (
     "Send an email via Gmail, but only after a wisdom pause. Returns one of "
