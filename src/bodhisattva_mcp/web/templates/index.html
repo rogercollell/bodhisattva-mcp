@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Journal · Bodhisattva{% endblock %}
+{% block content %}
+<h1>Journal</h1>
+{% if not pauses %}
+  <p>No pauses yet. Once your AI attempts a send_email, you'll see every pause here.</p>
+{% else %}
+  {% for p in pauses %}
+    <div class="pause {{ p.decision }}">
+      <div class="meta">{{ p.timestamp }} — <strong>{{ p.decision }}</strong>
+        {% if p.recipient %} · to {{ p.recipient }}{% endif %}
+      </div>
+      <div><strong>{{ p.subject or "(no subject)" }}</strong></div>
+      <div><a href="/p/{{ p.id }}">view</a></div>
+    </div>
+  {% endfor %}
+{% endif %}
+{% endblock %}

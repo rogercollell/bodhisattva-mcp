@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Pause #{{ pause.id }} · Bodhisattva{% endblock %}
+{% block content %}
+<h1>Pause #{{ pause.id }}</h1>
+<p class="meta">{{ pause.timestamp }} — <strong>{{ pause.decision }}</strong>
+  {% if pause.recipient %} · to {{ pause.recipient }}{% endif %}
+</p>
+
+<h2>Subject</h2>
+<p>{{ pause.subject or "(no subject)" }}</p>
+
+{% if pause.recipient_context %}
+<h2>Recipient context</h2>
+<p>{{ pause.recipient_context }}</p>
+{% endif %}
+
+<h2>Draft</h2>
+<pre>{{ pause.draft }}</pre>
+
+<h2>Wisdom frame</h2>
+<pre>{{ frame | tojson(indent=2) }}</pre>
+
+{% if pause.final_sent_text %}
+<h2>Finally sent</h2>
+<pre>{{ pause.final_sent_text }}</pre>
+{% endif %}
+
+<h2>User choice</h2>
+<p>{{ pause.user_choice or "(awaiting)" }}</p>
+{% if pause.message_id %}
+<p class="meta">Gmail message id: <code>{{ pause.message_id }}</code></p>
+{% endif %}
+{% endblock %}

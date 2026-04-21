@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Settings · Bodhisattva{% endblock %}
+{% block content %}
+<h1>Settings</h1>
+<p>Configure via environment variables. Restart the MCP server to apply changes.</p>
+
+<h2>Current</h2>
+<ul>
+  {% for k, v in settings.items() %}
+    <li><code>{{ k }}</code>: {{ v }}</li>
+  {% endfor %}
+</ul>
+
+<h2>Environment variables</h2>
+<pre>
+ANTHROPIC_API_KEY         — required if provider=anthropic
+OPENAI_API_KEY            — required if provider=openai
+BODHISATTVA_LLM_PROVIDER  — anthropic | openai
+BODHISATTVA_LLM_MODEL     — e.g. claude-haiku-4-5-20251001
+BODHISATTVA_WEB_PORT      — default 8473
+BODHISATTVA_JOURNAL_PATH  — default ~/.bodhisattva/journal.sqlite
+</pre>
+{% endblock %}

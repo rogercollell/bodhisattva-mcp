@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>{% block title %}Bodhisattva{% endblock %}</title>
+    <style>
+      body { font-family: system-ui, -apple-system, sans-serif; max-width: 900px;
+             margin: 2rem auto; padding: 0 1rem; color: #222; }
+      h1, h2 { font-weight: 500; }
+      a { color: #345; }
+      nav { margin-bottom: 2rem; font-size: 0.9rem; }
+      .pause { border-left: 3px solid #ccc; padding: 0.5rem 0 0.5rem 1rem;
+               margin-bottom: 1.5rem; }
+      .pause.revise { border-color: #c80; }
+      .pause.hold { border-color: #c33; }
+      .pause.proceed { border-color: #383; }
+      .meta { color: #777; font-size: 0.85rem; }
+      pre { background: #f6f6f6; padding: 0.75rem; border-radius: 4px;
+            white-space: pre-wrap; word-break: break-word; }
+      code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="/">Journal</a> · <a href="/settings">Settings</a>
+    </nav>
+    {% block content %}{% endblock %}
+  </body>
+</html>
