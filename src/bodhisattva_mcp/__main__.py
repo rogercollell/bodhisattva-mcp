@@ -1,9 +1,12 @@
 """Entry point: `bodhisattva-mcp` or `python -m bodhisattva_mcp`."""
 
+import asyncio
+
+from bodhisattva_mcp.server import run
+
 
 def main() -> None:
-    # Real implementation lands in Task 8.
-    raise NotImplementedError("MCP server not yet wired up")
+    asyncio.run(run())
 
 
 if __name__ == "__main__":
