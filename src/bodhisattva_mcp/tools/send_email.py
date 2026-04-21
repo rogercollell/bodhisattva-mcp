@@ -1,4 +1,10 @@
-"""The single MCP tool: orchestrates framing, gating, sending, journaling."""
+"""The single MCP tool: orchestrates framing, gating, sending, journaling.
+
+Policy: every email send runs the Attune framing pass. We deliberately do
+NOT gate the pass on ``karma_filter.needs_wisdom_frame`` — email sends are
+deliberate enough that a ~1s framing pass per send is acceptable, and the
+karma filter's false-negatives are unacceptable at this surface.
+"""
 
 from __future__ import annotations
 

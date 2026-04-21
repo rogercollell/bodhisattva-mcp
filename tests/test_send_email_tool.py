@@ -142,3 +142,98 @@ def test_wisdom_frame_json_in_journal_is_parseable(
     assert rec is not None
     parsed = json.loads(rec.wisdom_frame_json)
     assert parsed["sensitivity_level"] == "low"
+
+
+def test_always_frames_even_trivial_email(
+    journal: Journal, fake_gmail: FakeGmailClient, benign_llm
+) -> None:
+    """Policy: every email send runs the framing pass. Never skip it based on length
+    or content heuristics. If this test ever fails, the policy has been violated.
+    """
+    result = handle_send_email(
+        SendEmailInput(to="alice@example.com", subject="hi", body=".", context=None),
+        model=benign_llm,
+        gmail=fake_gmail,
+        journal=journal,
+        domain="general",
+    )
+    # If framing was skipped, the LLM would not have been invoked and
+    # `wisdom_frame` would be the static fallback. Confirm the benign fixture's
+    # emotional_context string is present.
+    assert result["wisdom_frame"]["emotional_context"] == "routine"
+
+
+def test_invalid_recipient_leaves_journal_empty(
+    journal: Journal, fake_gmail: FakeGmailClient, benign_llm
+) -> None:
+    """Invariant: validation failures never write a journal row. The handler
+    constructs ``EmailToSend`` before framing precisely to preserve this."""
+    with pytest.raises(ValueError):
+        handle_send_email(
+            SendEmailInput(to="", subject="s", body="b", context=None),
+            model=benign_llm,
+            gmail=fake_gmail,
+            journal=journal,
+            domain="general",
+        )
+    assert journal.list() == []
+
+
+def test_framing_fallback_path_on_llm_error(
+    journal: Journal, fake_gmail: FakeGmailClient
+) -> None:
+    """When the framing LLM call raises, the orchestrator recovers via the
+    static fallback frame and still completes the flow with a journaled pause.
+    The fallback frame is_consequential=True; the gate then tries to build a
+    revision and (the same failing model) also raises, so the gate returns
+    hold. No send is attempted. No crash reaches the caller."""
+    from unittest.mock import MagicMock
+
+    failing_model = MagicMock()
+    failing_model.invoke.side_effect = RuntimeError("LLM API down")
+
+    result = handle_send_email(
+        SendEmailInput(
+            to="alice@example.com", subject="s", body="Hello.", context=None
+        ),
+        model=failing_model,
+        gmail=fake_gmail,
+        journal=journal,
+        domain="general",
+    )
+
+    assert result["journal_entry_id"] is not None
+    assert result["decision"] == "hold"
+    assert len(fake_gmail.sent) == 0
+
+    rec = journal.get(result["journal_entry_id"])
+    assert rec is not None
+    assert rec.decision == "hold"
+
+
+def test_gmail_send_error_is_structured(
+    journal: Journal, benign_llm
+) -> None:
+    """Parallel to the auth-error case: a transport-level Gmail failure must
+    be surfaced as a structured ``hold`` decision with an error message, and
+    the journal row must record ``send_failed``."""
+    from bodhisattva_mcp.gmail_client import GmailSendError
+
+    failing_gmail = FakeGmailClient(fail_with=GmailSendError("Gmail 503"))
+    result = handle_send_email(
+        SendEmailInput(
+            to="alice@example.com", subject="s", body="Hi.", context=None
+        ),
+        model=benign_llm,
+        gmail=failing_gmail,
+        journal=journal,
+        domain="general",
+    )
+
+    assert result["decision"] == "hold"
+    assert result["error"] is not None
+    assert "Gmail 503" in result["error"] or "gmail" in result["error"].lower()
+
+    rec = journal.get(result["journal_entry_id"])
+    assert rec is not None
+    assert rec.user_choice == "send_failed"
