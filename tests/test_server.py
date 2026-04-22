@@ -20,9 +20,7 @@ from bodhisattva_mcp.server import build_tool_registry
 def registry(tmp_path: Path, benign_llm: MagicMock) -> dict:
     journal = Journal(tmp_path / "journal.sqlite")
     gmail = FakeGmailClient()
-    return build_tool_registry(
-        model=benign_llm, gmail=gmail, journal=journal, domain="general"
-    )
+    return build_tool_registry(model=benign_llm, gmail=gmail, journal=journal, domain="general")
 
 
 def test_registry_exposes_send_email(registry: dict) -> None:

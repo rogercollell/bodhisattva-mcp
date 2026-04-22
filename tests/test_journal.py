@@ -88,12 +88,36 @@ def test_schema_is_idempotent(tmp_path: Path) -> None:
 
 
 def test_list_by_recipient(journal: Journal) -> None:
-    journal.create(PauseRecord(draft="a", subject="s", recipient="alice@x.com",
-                               recipient_context=None, wisdom_frame_json="{}", decision="proceed"))
-    journal.create(PauseRecord(draft="b", subject="s", recipient="bob@x.com",
-                               recipient_context=None, wisdom_frame_json="{}", decision="proceed"))
-    journal.create(PauseRecord(draft="c", subject="s", recipient="alice@x.com",
-                               recipient_context=None, wisdom_frame_json="{}", decision="revise"))
+    journal.create(
+        PauseRecord(
+            draft="a",
+            subject="s",
+            recipient="alice@x.com",
+            recipient_context=None,
+            wisdom_frame_json="{}",
+            decision="proceed",
+        )
+    )
+    journal.create(
+        PauseRecord(
+            draft="b",
+            subject="s",
+            recipient="bob@x.com",
+            recipient_context=None,
+            wisdom_frame_json="{}",
+            decision="proceed",
+        )
+    )
+    journal.create(
+        PauseRecord(
+            draft="c",
+            subject="s",
+            recipient="alice@x.com",
+            recipient_context=None,
+            wisdom_frame_json="{}",
+            decision="revise",
+        )
+    )
 
     alice_records = journal.list(limit=10, recipient="alice@x.com")
     assert len(alice_records) == 2

@@ -1,17 +1,17 @@
 """Pydantic schemas for the attune runtime and evaluation helpers."""
 
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
 
-class Domain(str, Enum):
+class Domain(StrEnum):
     general = "general"
     coaching = "coaching"
     mental_health = "mental_health"
 
 
-class SensitivityLevel(str, Enum):
+class SensitivityLevel(StrEnum):
     low = "low"
     medium = "medium"
     high = "high"
@@ -33,7 +33,7 @@ class WisdomFrame(BaseModel):
     reflection_invitation: str | None = None
 
 
-class EvaluationStatus(str, Enum):
+class EvaluationStatus(StrEnum):
     ok = "ok"
     fallback_api_error = "fallback_api_error"
     fallback_invalid_json = "fallback_invalid_json"

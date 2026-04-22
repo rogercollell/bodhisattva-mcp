@@ -82,9 +82,7 @@ class Journal:
 
     def get(self, record_id: int) -> PauseRecord | None:
         with self._connect() as conn:
-            row = conn.execute(
-                "SELECT * FROM pauses WHERE id = ?", (record_id,)
-            ).fetchone()
+            row = conn.execute("SELECT * FROM pauses WHERE id = ?", (record_id,)).fetchone()
         return _row_to_record(row) if row else None
 
     def list(self, limit: int = 50, recipient: str | None = None) -> list[PauseRecord]:

@@ -87,12 +87,8 @@ class GoogleGmailClient:
 
         if not creds or not creds.valid:
             if not self._client_secret_path.exists():
-                raise GmailAuthError(
-                    f"client secret not found at {self._client_secret_path}"
-                )
-            flow = InstalledAppFlow.from_client_secrets_file(
-                str(self._client_secret_path), SCOPES
-            )
+                raise GmailAuthError(f"client secret not found at {self._client_secret_path}")
+            flow = InstalledAppFlow.from_client_secrets_file(str(self._client_secret_path), SCOPES)
             creds = flow.run_local_server(port=0)
             self._creds_path.parent.mkdir(parents=True, exist_ok=True)
             self._creds_path.write_text(creds.to_json())
@@ -110,12 +106,7 @@ class GoogleGmailClient:
         raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
 
         try:
-            sent = (
-                self._service.users()
-                .messages()
-                .send(userId="me", body={"raw": raw})
-                .execute()
-            )
+            sent = self._service.users().messages().send(userId="me", body={"raw": raw}).execute()
         except Exception as exc:  # noqa: BLE001
             raise GmailSendError(f"Gmail send failed: {exc}") from exc
 

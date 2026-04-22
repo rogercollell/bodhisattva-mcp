@@ -104,14 +104,10 @@ def test_invalid_recipient_raises(
         )
 
 
-def test_gmail_auth_failure_is_structured_error_not_crash(
-    journal: Journal, benign_llm
-) -> None:
+def test_gmail_auth_failure_is_structured_error_not_crash(journal: Journal, benign_llm) -> None:
     failing_gmail = FakeGmailClient(fail_with=GmailAuthError("not authed"))
     result = handle_send_email(
-        SendEmailInput(
-            to="alice@example.com", subject="s", body="Hi.", context=None
-        ),
+        SendEmailInput(to="alice@example.com", subject="s", body="Hi.", context=None),
         model=benign_llm,
         gmail=failing_gmail,
         journal=journal,
@@ -130,9 +126,7 @@ def test_wisdom_frame_json_in_journal_is_parseable(
     journal: Journal, fake_gmail: FakeGmailClient, benign_llm
 ) -> None:
     result = handle_send_email(
-        SendEmailInput(
-            to="alice@example.com", subject="s", body="Hello.", context=None
-        ),
+        SendEmailInput(to="alice@example.com", subject="s", body="Hello.", context=None),
         model=benign_llm,
         gmail=fake_gmail,
         journal=journal,
@@ -179,9 +173,7 @@ def test_invalid_recipient_leaves_journal_empty(
     assert journal.list() == []
 
 
-def test_framing_fallback_path_on_llm_error(
-    journal: Journal, fake_gmail: FakeGmailClient
-) -> None:
+def test_framing_fallback_path_on_llm_error(journal: Journal, fake_gmail: FakeGmailClient) -> None:
     """When the framing LLM call raises, the orchestrator recovers via the
     static fallback frame and still completes the flow with a journaled pause.
     The fallback frame is_consequential=True; the gate then tries to build a
@@ -193,9 +185,7 @@ def test_framing_fallback_path_on_llm_error(
     failing_model.invoke.side_effect = RuntimeError("LLM API down")
 
     result = handle_send_email(
-        SendEmailInput(
-            to="alice@example.com", subject="s", body="Hello.", context=None
-        ),
+        SendEmailInput(to="alice@example.com", subject="s", body="Hello.", context=None),
         model=failing_model,
         gmail=fake_gmail,
         journal=journal,
@@ -211,9 +201,7 @@ def test_framing_fallback_path_on_llm_error(
     assert rec.decision == "hold"
 
 
-def test_gmail_send_error_is_structured(
-    journal: Journal, benign_llm
-) -> None:
+def test_gmail_send_error_is_structured(journal: Journal, benign_llm) -> None:
     """Parallel to the auth-error case: a transport-level Gmail failure must
     be surfaced as a structured ``hold`` decision with an error message, and
     the journal row must record ``send_failed``."""
@@ -221,9 +209,7 @@ def test_gmail_send_error_is_structured(
 
     failing_gmail = FakeGmailClient(fail_with=GmailSendError("Gmail 503"))
     result = handle_send_email(
-        SendEmailInput(
-            to="alice@example.com", subject="s", body="Hi.", context=None
-        ),
+        SendEmailInput(to="alice@example.com", subject="s", body="Hi.", context=None),
         model=benign_llm,
         gmail=failing_gmail,
         journal=journal,

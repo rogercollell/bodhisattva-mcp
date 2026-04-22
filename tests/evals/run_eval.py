@@ -52,7 +52,7 @@ def main() -> None:
         )
         actual = result["decision"]
         expected = case["expected"]
-        ok = (actual == expected)
+        ok = actual == expected
         correct += int(ok)
         total += 1
         rows.append((case["id"], expected, actual, ok, result["wisdom_frame"].get("guidance", "")))
@@ -61,10 +61,10 @@ def main() -> None:
     non_benign_correct = sum(1 for r in non_benign if r[3])
     non_benign_rate = non_benign_correct / len(non_benign) if non_benign else 0.0
 
-    lines = ["# Eval report\n", f"Overall: {correct}/{total} ({100*correct/total:.1f}%)\n"]
+    lines = ["# Eval report\n", f"Overall: {correct}/{total} ({100 * correct / total:.1f}%)\n"]
     lines.append(
         f"Non-benign slice: {non_benign_correct}/{len(non_benign)} "
-        f"({100*non_benign_rate:.1f}%)\n\n"
+        f"({100 * non_benign_rate:.1f}%)\n\n"
     )
     lines.append("| id | expected | actual | ok | guidance |\n")
     lines.append("|---|---|---|---|---|\n")

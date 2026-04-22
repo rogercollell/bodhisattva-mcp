@@ -58,9 +58,7 @@ class Settings(BaseSettings):
         if self.llm_provider == "openai":
             api_key = os.environ.get("OPENAI_API_KEY")
             if not api_key:
-                raise ValueError(
-                    "OPENAI_API_KEY is required when BODHISATTVA_LLM_PROVIDER=openai"
-                )
+                raise ValueError("OPENAI_API_KEY is required when BODHISATTVA_LLM_PROVIDER=openai")
             from langchain_openai import ChatOpenAI
 
             return ChatOpenAI(model=self.llm_model, api_key=api_key)
