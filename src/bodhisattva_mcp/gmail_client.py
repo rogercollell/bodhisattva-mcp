@@ -87,7 +87,12 @@ class GoogleGmailClient:
 
         if not creds or not creds.valid:
             if not self._client_secret_path.exists():
-                raise GmailAuthError(f"client secret not found at {self._client_secret_path}")
+                raise GmailAuthError(
+                    f"No Gmail client secret found at {self._client_secret_path}. "
+                    "See docs/install.md step 2: create an OAuth client ID "
+                    "(type: Desktop) in Google Cloud Console, download the JSON, "
+                    "and save it to that path."
+                )
             flow = InstalledAppFlow.from_client_secrets_file(str(self._client_secret_path), SCOPES)
             creds = flow.run_local_server(port=0)
             self._creds_path.parent.mkdir(parents=True, exist_ok=True)
