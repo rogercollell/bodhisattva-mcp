@@ -72,3 +72,20 @@ class Settings(BaseSettings):
             return ChatOpenAI(model=self.llm_model, api_key=api_key)
 
         raise ValueError(f"Unsupported provider: {self.llm_provider}")
+
+
+def load_settings() -> Settings:
+    """Construct ``Settings`` with a friendly error for invalid provider values."""
+    from pydantic import ValidationError
+
+    try:
+        return Settings()
+    except ValidationError as exc:
+        for err in exc.errors():
+            if err.get("loc") == ("llm_provider",):
+                bad_value = err.get("input", os.environ.get("BODHISATTVA_LLM_PROVIDER"))
+                raise ValueError(
+                    f"BODHISATTVA_LLM_PROVIDER={bad_value!r} is not a valid "
+                    "provider. Valid options: anthropic, openai."
+                ) from exc
+        raise

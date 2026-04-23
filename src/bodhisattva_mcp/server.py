@@ -20,7 +20,7 @@ from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
-from bodhisattva_mcp.config import Settings
+from bodhisattva_mcp.config import load_settings
 from bodhisattva_mcp.gmail_client import (
     GmailClient,
     GoogleGmailClient,
@@ -120,7 +120,7 @@ async def _run_web(app, port: int) -> None:
 async def run() -> None:
     """Entry point: start the MCP server and the local web UI in parallel."""
     logging.basicConfig(level=logging.INFO)
-    settings = Settings()
+    settings = load_settings()
 
     model = settings.build_model()
     journal = Journal(settings.journal_path)

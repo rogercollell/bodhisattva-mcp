@@ -67,3 +67,20 @@ def test_missing_openai_api_key_suggests_anthropic_fallback(
     assert "OPENAI_API_KEY" in msg
     assert "BODHISATTVA_LLM_PROVIDER=anthropic" in msg
     assert "ANTHROPIC_API_KEY" in msg
+
+
+def test_invalid_provider_lists_valid_options(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("BODHISATTVA_LLM_PROVIDER", "grokster")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "unused")
+
+    from bodhisattva_mcp.config import load_settings
+
+    with pytest.raises(ValueError) as exc_info:
+        load_settings()
+
+    msg = str(exc_info.value)
+    assert "grokster" in msg, "error should repeat the invalid value"
+    assert "anthropic" in msg, "error should list valid options"
+    assert "openai" in msg, "error should list valid options"
