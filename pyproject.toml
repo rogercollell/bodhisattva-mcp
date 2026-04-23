@@ -1,6 +1,6 @@
 [project]
 name = "bodhisattva-mcp"
-version = "0.1.0"
+version = "0.1.0a1"
 description = "MCP server that pauses AI before it sends an email you'll regret."
 readme = "README.md"
 license = { text = "MIT" }
