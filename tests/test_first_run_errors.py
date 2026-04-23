@@ -31,3 +31,39 @@ def test_missing_client_secret_error_points_to_install_guide(
     assert str(client_secret_path) in msg, "error should include the expected path"
     assert "docs/install.md" in msg, "error should direct user to the install guide"
     assert "Google Cloud" in msg, "error should mention the OAuth provider"
+
+
+def test_missing_anthropic_api_key_suggests_openai_fallback(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("BODHISATTVA_LLM_PROVIDER", "anthropic")
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+
+    from bodhisattva_mcp.config import Settings
+
+    with pytest.raises(ValueError) as exc_info:
+        Settings().build_model()
+
+    msg = str(exc_info.value)
+    assert "ANTHROPIC_API_KEY" in msg
+    assert "BODHISATTVA_LLM_PROVIDER=openai" in msg, (
+        "error should suggest switching to the other provider as a fallback"
+    )
+    assert "OPENAI_API_KEY" in msg, "error should name the fallback key"
+
+
+def test_missing_openai_api_key_suggests_anthropic_fallback(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("BODHISATTVA_LLM_PROVIDER", "openai")
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+
+    from bodhisattva_mcp.config import Settings
+
+    with pytest.raises(ValueError) as exc_info:
+        Settings().build_model()
+
+    msg = str(exc_info.value)
+    assert "OPENAI_API_KEY" in msg
+    assert "BODHISATTVA_LLM_PROVIDER=anthropic" in msg
+    assert "ANTHROPIC_API_KEY" in msg
