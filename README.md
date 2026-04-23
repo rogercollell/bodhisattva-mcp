@@ -23,7 +23,8 @@ reasoning.
 # 1. Install
 uv tool install bodhisattva-mcp
 
-# 2. Drop in your Google Cloud OAuth client secret (see Install guide)
+# 2. Drop in your Google Cloud OAuth client secret (see Install guide).
+#    Assumes exactly one client_secret_*.json in ~/Downloads — rename manually if you have several.
 mkdir -p ~/.bodhisattva && mv ~/Downloads/client_secret_*.json ~/.bodhisattva/client_secret.json
 
 # 3. Configure your LLM provider

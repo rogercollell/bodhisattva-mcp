@@ -61,6 +61,5 @@ Scope in parens when useful: `feat(server): ...`, `docs(install): ...`.
 
 ## Security
 
-See [SECURITY.md](SECURITY.md) if it exists — otherwise, report security
-issues privately to the maintainer listed in `pyproject.toml`, not via a
-public issue.
+Please report security issues privately to the maintainer listed in
+`pyproject.toml` — not via a public issue.
