@@ -111,6 +111,21 @@ def build_mcp_server(registry: dict[str, Callable[[dict[str, Any]], dict[str, An
     return server
 
 
+def _check_port_available(port: int) -> None:
+    """Raise ``RuntimeError`` with actionable guidance if ``port`` is bound."""
+    import socket
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+        probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        try:
+            probe.bind(("127.0.0.1", port))
+        except OSError as exc:
+            raise RuntimeError(
+                f"Web UI port {port} is already in use. "
+                "Set BODHISATTVA_WEB_PORT to an unused port and try again."
+            ) from exc
+
+
 async def _run_web(app, port: int) -> None:
     config = uvicorn.Config(app, host="127.0.0.1", port=port, log_level="warning")
     server = uvicorn.Server(config)
@@ -145,6 +160,8 @@ async def run() -> None:
             "journal_path": str(settings.journal_path),
         },
     )
+
+    _check_port_available(settings.web_port)
 
     async with stdio_server() as (read_stream, write_stream):
         web_task = asyncio.create_task(_run_web(web_app, settings.web_port))

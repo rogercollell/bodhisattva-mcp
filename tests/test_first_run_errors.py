@@ -84,3 +84,22 @@ def test_invalid_provider_lists_valid_options(
     assert "grokster" in msg, "error should repeat the invalid value"
     assert "anthropic" in msg, "error should list valid options"
     assert "openai" in msg, "error should list valid options"
+
+
+def test_port_in_use_suggests_env_var_override() -> None:
+    import socket
+
+    from bodhisattva_mcp.server import _check_port_available
+
+    # Bind a real socket to occupy a port, then verify the check fails clearly.
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind(("127.0.0.1", 0))  # let OS pick a free port
+        sock.listen(1)
+        port = sock.getsockname()[1]
+
+        with pytest.raises(RuntimeError) as exc_info:
+            _check_port_available(port)
+
+        msg = str(exc_info.value)
+        assert str(port) in msg, "error should include the busy port"
+        assert "BODHISATTVA_WEB_PORT" in msg, "error should name the override env var"
