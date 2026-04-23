@@ -81,8 +81,8 @@ Full install guide: [docs/install.md](docs/install.md).
 
 ## Status
 
-- **v0.1 (this release):** free tier — one wrap (`send_email`), local journal,
-  bring-your-own LLM key.
+- **v0.1 (shipped 2026-04-23):** free tier — one wrap (`send_email`), local
+  journal, bring-your-own LLM key.
 - **v0.2 (planned):** hosted memory-aware framing + paid subscription.
 - **v0.3+:** Slack, Outlook, additional wrappers as demand dictates.
 
