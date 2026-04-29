@@ -17,6 +17,12 @@ Every pause is logged to a local SQLite journal. A localhost-only web UI at
 `http://localhost:8473` lets you review past pauses and see the framing's
 reasoning.
 
+## Try it (no install)
+
+Want to see the wisdom-frame in action before installing?
+
+→ **[bodhisattva-web.vercel.app](https://bodhisattva-web.vercel.app)** — paste a draft, see the framing in ~2 seconds. No credentials, no Gmail, no Anthropic key. Source: [github.com/rogercollell/bodhisattva-web](https://github.com/rogercollell/bodhisattva-web).
+
 ## Quickstart
 
 ```bash
