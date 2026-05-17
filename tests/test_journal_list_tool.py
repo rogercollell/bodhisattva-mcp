@@ -223,3 +223,23 @@ def test_one_malformed_row_does_not_poison_list(journal: Journal) -> None:
     good_row = next(r for r in result["records"] if r["decision"] == "proceed")
     assert good_row["sensitivity_level"] == "medium"
     assert good_row["guidance_snippet"] == "all fine"
+
+
+def test_non_dict_wisdom_frame_falls_back_gracefully(journal: Journal) -> None:
+    journal.create(
+        PauseRecord(
+            draft="d",
+            subject="s",
+            recipient="r@x.com",
+            recipient_context=None,
+            wisdom_frame_json='"just a string"',
+            decision="proceed",
+        )
+    )
+
+    result = handle_journal_list(JournalListInput(), journal=journal)
+
+    assert len(result["records"]) == 1
+    row = result["records"][0]
+    assert row["sensitivity_level"] is None
+    assert row["guidance_snippet"] == ""
