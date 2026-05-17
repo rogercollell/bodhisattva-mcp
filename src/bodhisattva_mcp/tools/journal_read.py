@@ -22,14 +22,19 @@ def handle_journal_read(inp: JournalReadInput, *, journal: Journal) -> dict[str,
     if record is None:
         return {"found": False, "id": inp.id}
 
-    wisdom_frame: dict[str, Any] | None
+    wisdom_frame: dict[str, Any] | None = None
     parse_error = False
     try:
-        wisdom_frame = json.loads(record.wisdom_frame_json)
+        parsed = json.loads(record.wisdom_frame_json)
     except json.JSONDecodeError:
         logger.warning("Malformed wisdom_frame_json in journal entry %s", record.id)
-        wisdom_frame = None
         parse_error = True
+    else:
+        if isinstance(parsed, dict):
+            wisdom_frame = parsed
+        else:
+            logger.warning("wisdom_frame_json in journal entry %s is not a JSON object", record.id)
+            parse_error = True
 
     payload_record: dict[str, Any] = {
         "id": record.id,
