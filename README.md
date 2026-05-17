@@ -89,8 +89,11 @@ Full install guide: [docs/install.md](docs/install.md).
 
 - **v0.1 (shipped 2026-04-23):** free tier — one wrap (`send_email`), local
   journal, bring-your-own LLM key.
-- **v0.2 (planned):** hosted memory-aware framing + paid subscription.
-- **v0.3+:** Slack, Outlook, additional wrappers as demand dictates.
+- **v0.2 (in development):** journal read tools —
+  `bodhisattva.journal_read` and `bodhisattva.journal_list` — expose the
+  local journal to MCP-aware agents.
+- **v0.3 (planned):** hosted memory-aware framing + paid subscription.
+- **v0.4+:** Slack, Outlook, additional wrappers as demand dictates.
 
 ## Contributing
 

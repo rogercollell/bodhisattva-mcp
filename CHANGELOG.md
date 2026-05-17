@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `bodhisattva.journal_read(id)` MCP tool — fetch one journal entry by id,
+  with `wisdom_frame_json` parsed into a nested object.
+- `bodhisattva.journal_list(recipient?, decision?, since?, limit?)` MCP
+  tool — list past pauses with optional filters; returns slim rows with
+  `sensitivity_level` and a 200-char `guidance_snippet`.
+- `decision` and `since` filter parameters on `Journal.list()`.
+
+### Changed
+- v0.2 was previously planned to be memory-aware framing; that work moves
+  to v0.3. v0.2 ships the passive read surface that memory-aware framing
+  would have depended on.
+
 ## [0.1.0] - 2026-04-23
 
 Initial public release.
