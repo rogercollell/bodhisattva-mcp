@@ -26,6 +26,8 @@ from bodhisattva_mcp.gmail_client import (
     GoogleGmailClient,
 )
 from bodhisattva_mcp.journal import Journal
+from bodhisattva_mcp.tools.journal_list import JournalListInput, handle_journal_list
+from bodhisattva_mcp.tools.journal_read import JournalReadInput, handle_journal_read
 from bodhisattva_mcp.tools.send_email import SendEmailInput, handle_send_email
 from bodhisattva_mcp.web.app import create_app
 
@@ -53,6 +55,57 @@ _INPUT_SCHEMA = {
         },
     },
     "required": ["to", "subject", "body"],
+}
+
+_JOURNAL_READ_NAME = "bodhisattva.journal_read"
+_JOURNAL_READ_DESCRIPTION = (
+    "Fetch one journal entry by id — the full record of a past wisdom-pause, "
+    "including the framing's reasoning (wisdom_frame). Use this to understand "
+    "why the framing reached a particular verdict, or to recover context from "
+    "a prior send_email call (the id is returned as `journal_entry_id`)."
+)
+_JOURNAL_READ_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": (
+                "Journal entry id (from send_email's journal_entry_id or from journal_list)."
+            ),
+        },
+    },
+    "required": ["id"],
+}
+
+_JOURNAL_LIST_NAME = "bodhisattva.journal_list"
+_JOURNAL_LIST_DESCRIPTION = (
+    "List past wisdom-pauses, newest first, optionally filtered by recipient, "
+    "decision, or time. Returns slim rows (id, recipient, subject, decision, "
+    "sensitivity_level, short guidance snippet, user_choice). Call "
+    "journal_read on a specific id for the full record."
+)
+_JOURNAL_LIST_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "recipient": {
+            "type": ["string", "null"],
+            "description": "Exact-match recipient email address.",
+        },
+        "decision": {
+            "type": ["string", "null"],
+            "enum": ["proceed", "revise", "hold", None],
+            "description": "Filter to one decision type.",
+        },
+        "since": {
+            "type": ["string", "null"],
+            "description": "ISO 8601 timestamp; rows at or after this time.",
+        },
+        "limit": {
+            "type": "integer",
+            "description": "Max rows (default 50, clamped to 1-200).",
+        },
+    },
+    "required": [],
 }
 
 
@@ -83,7 +136,28 @@ def build_tool_registry(
             domain=domain,
         )
 
-    return {_TOOL_NAME: send_email_handler}
+    def journal_read_handler(args: dict[str, Any]) -> dict[str, Any]:
+        return handle_journal_read(
+            JournalReadInput(id=args["id"]),
+            journal=journal,
+        )
+
+    def journal_list_handler(args: dict[str, Any]) -> dict[str, Any]:
+        return handle_journal_list(
+            JournalListInput(
+                recipient=args.get("recipient"),
+                decision=args.get("decision"),
+                since=args.get("since"),
+                limit=args.get("limit", 50),
+            ),
+            journal=journal,
+        )
+
+    return {
+        _TOOL_NAME: send_email_handler,
+        _JOURNAL_READ_NAME: journal_read_handler,
+        _JOURNAL_LIST_NAME: journal_list_handler,
+    }
 
 
 def build_mcp_server(registry: dict[str, Callable[[dict[str, Any]], dict[str, Any]]]) -> Server:
@@ -96,7 +170,17 @@ def build_mcp_server(registry: dict[str, Callable[[dict[str, Any]], dict[str, An
                 name=_TOOL_NAME,
                 description=_TOOL_DESCRIPTION,
                 inputSchema=_INPUT_SCHEMA,
-            )
+            ),
+            Tool(
+                name=_JOURNAL_READ_NAME,
+                description=_JOURNAL_READ_DESCRIPTION,
+                inputSchema=_JOURNAL_READ_SCHEMA,
+            ),
+            Tool(
+                name=_JOURNAL_LIST_NAME,
+                description=_JOURNAL_LIST_DESCRIPTION,
+                inputSchema=_JOURNAL_LIST_SCHEMA,
+            ),
         ]
 
     @server.call_tool()
