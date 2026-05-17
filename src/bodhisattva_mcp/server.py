@@ -1,6 +1,7 @@
 """MCP server bootstrap.
 
-The server registers a single tool — ``bodhisattva.send_email`` — and
+The server registers three tools — ``bodhisattva.send_email``,
+``bodhisattva.journal_read``, and ``bodhisattva.journal_list`` — and
 starts a background FastAPI app for the local journal UI. It speaks the
 MCP stdio transport, so the parent process (Claude Desktop / Code /
 Cursor / Codex) launches it on demand.
