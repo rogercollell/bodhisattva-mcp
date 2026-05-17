@@ -26,6 +26,17 @@ On the paid tier (Plan 2, not yet shipped): the current draft payload plus a
 short digest of recent pauses (summary lines, not full past drafts). See the
 paid-tier privacy page when that tier ships.
 
+## Journal read tools (v0.2)
+
+Starting in v0.2, two MCP tools — `bodhisattva.journal_read` and
+`bodhisattva.journal_list` — let MCP-aware clients (Claude Desktop, Claude
+Code, Cursor, Codex) read the local journal. This widens the in-process
+tool surface but **not the data surface**: the journal already exists on
+disk, the localhost web UI at `http://localhost:8473` already serves it,
+and the calling MCP client is already trusted with `send_email` (which
+sees current drafts and writes journal rows). The new tools project the
+same data that's already accessible. No data leaves the machine.
+
 ## Deleting your data
 
 ```bash
