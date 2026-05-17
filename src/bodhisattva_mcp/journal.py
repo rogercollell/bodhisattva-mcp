@@ -85,14 +85,30 @@ class Journal:
             row = conn.execute("SELECT * FROM pauses WHERE id = ?", (record_id,)).fetchone()
         return _row_to_record(row) if row else None
 
-    def list(self, limit: int = 50, recipient: str | None = None) -> list[PauseRecord]:
+    def list(
+        self,
+        limit: int = 50,
+        recipient: str | None = None,
+        decision: str | None = None,
+        since: str | None = None,
+    ) -> list[PauseRecord]:
+        clauses: list[str] = []
+        params: list = []
+        if recipient is not None:
+            clauses.append("recipient = ?")
+            params.append(recipient)
+        if decision is not None:
+            clauses.append("decision = ?")
+            params.append(decision)
+        if since is not None:
+            clauses.append("timestamp >= ?")
+            params.append(since)
+
         query = "SELECT * FROM pauses"
-        params: tuple = ()
-        if recipient:
-            query += " WHERE recipient = ?"
-            params = (recipient,)
+        if clauses:
+            query += " WHERE " + " AND ".join(clauses)
         query += " ORDER BY id DESC LIMIT ?"
-        params = (*params, limit)
+        params.append(limit)
 
         with self._connect() as conn:
             rows = conn.execute(query, params).fetchall()

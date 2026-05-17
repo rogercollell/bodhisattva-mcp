@@ -122,3 +122,125 @@ def test_list_by_recipient(journal: Journal) -> None:
     alice_records = journal.list(limit=10, recipient="alice@x.com")
     assert len(alice_records) == 2
     assert all(r.recipient == "alice@x.com" for r in alice_records)
+
+
+def test_list_by_decision(journal: Journal) -> None:
+    journal.create(
+        PauseRecord(
+            draft="a",
+            subject="s",
+            recipient="r@x.com",
+            recipient_context=None,
+            wisdom_frame_json="{}",
+            decision="proceed",
+        )
+    )
+    journal.create(
+        PauseRecord(
+            draft="b",
+            subject="s",
+            recipient="r@x.com",
+            recipient_context=None,
+            wisdom_frame_json="{}",
+            decision="hold",
+        )
+    )
+    journal.create(
+        PauseRecord(
+            draft="c",
+            subject="s",
+            recipient="r@x.com",
+            recipient_context=None,
+            wisdom_frame_json="{}",
+            decision="hold",
+        )
+    )
+
+    holds = journal.list(limit=10, decision="hold")
+    assert len(holds) == 2
+    assert all(r.decision == "hold" for r in holds)
+
+
+def test_list_since_excludes_older(journal: Journal) -> None:
+    journal.create(
+        PauseRecord(
+            draft="old",
+            subject="s",
+            recipient="r@x.com",
+            recipient_context=None,
+            wisdom_frame_json="{}",
+            decision="proceed",
+            timestamp="2026-01-01T00:00:00+00:00",
+        )
+    )
+    journal.create(
+        PauseRecord(
+            draft="new",
+            subject="s",
+            recipient="r@x.com",
+            recipient_context=None,
+            wisdom_frame_json="{}",
+            decision="proceed",
+            timestamp="2026-06-01T00:00:00+00:00",
+        )
+    )
+
+    recent = journal.list(limit=10, since="2026-03-01T00:00:00+00:00")
+    assert len(recent) == 1
+    assert recent[0].draft == "new"
+
+
+def test_list_combined_filters(journal: Journal) -> None:
+    journal.create(
+        PauseRecord(
+            draft="1",
+            subject="s",
+            recipient="alice@x.com",
+            recipient_context=None,
+            wisdom_frame_json="{}",
+            decision="proceed",
+            timestamp="2026-04-01T00:00:00+00:00",
+        )
+    )
+    journal.create(
+        PauseRecord(
+            draft="2",
+            subject="s",
+            recipient="alice@x.com",
+            recipient_context=None,
+            wisdom_frame_json="{}",
+            decision="hold",
+            timestamp="2026-04-15T00:00:00+00:00",
+        )
+    )
+    journal.create(
+        PauseRecord(
+            draft="3",
+            subject="s",
+            recipient="bob@x.com",
+            recipient_context=None,
+            wisdom_frame_json="{}",
+            decision="hold",
+            timestamp="2026-04-20T00:00:00+00:00",
+        )
+    )
+    journal.create(
+        PauseRecord(
+            draft="4",
+            subject="s",
+            recipient="alice@x.com",
+            recipient_context=None,
+            wisdom_frame_json="{}",
+            decision="hold",
+            timestamp="2026-01-01T00:00:00+00:00",
+        )
+    )
+
+    matches = journal.list(
+        limit=10,
+        recipient="alice@x.com",
+        decision="hold",
+        since="2026-02-01T00:00:00+00:00",
+    )
+    assert len(matches) == 1
+    assert matches[0].draft == "2"
