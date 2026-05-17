@@ -66,10 +66,10 @@ You stay in the loop. The agent gets a clear structured response
 
 v0.1 is intentionally narrow:
 
-- **Gmail only.** Slack, Outlook, and other wrappers are v0.3+.
+- **Gmail only.** Slack, Outlook, and other wrappers are v0.4+.
 - **No hosted memory.** The framing is stateless: it sees the current draft
   and optional `context` field, not your past conversations. Memory-aware
-  framing is v0.2.
+  framing is v0.3.
 - **No Google verification.** You bring your own Google Cloud OAuth app, so
   you're a "test user" of your own app. This is a feature: your drafts
   never touch any server except the LLM provider you chose.
