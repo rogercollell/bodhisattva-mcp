@@ -83,3 +83,40 @@ def test_journal_list_invalid_decision_via_registry(registry: dict) -> None:
     handler = registry["bodhisattva.journal_list"]
     result = handler({"decision": "bogus"})
     assert result["code"] == "invalid_argument"
+
+
+def test_journal_read_missing_id_raises(registry: dict) -> None:
+    handler = registry["bodhisattva.journal_read"]
+    with pytest.raises(KeyError):
+        handler({})
+
+
+def test_list_tools_advertises_all_three(tmp_path, benign_llm) -> None:
+    import asyncio
+
+    from bodhisattva_mcp.gmail_client import FakeGmailClient
+    from bodhisattva_mcp.journal import Journal
+    from bodhisattva_mcp.server import build_mcp_server, build_tool_registry
+
+    journal = Journal(tmp_path / "journal.sqlite")
+    registry = build_tool_registry(
+        model=benign_llm, gmail=FakeGmailClient(), journal=journal, domain="general"
+    )
+    server = build_mcp_server(registry)
+
+    # The decorated handler is registered on the MCP server; pull it out and call it.
+    # The mcp.server.Server stores list_tools handler under `request_handlers` keyed by
+    # the schema type. Easier: call the inner function directly via its registered name.
+    handler = server.request_handlers
+    # Find the ListToolsRequest handler.
+    from mcp.types import ListToolsRequest
+
+    list_tools_handler = handler[ListToolsRequest]
+    result = asyncio.run(list_tools_handler(ListToolsRequest(method="tools/list")))
+
+    names = sorted(tool.name for tool in result.root.tools)
+    assert names == [
+        "bodhisattva.journal_list",
+        "bodhisattva.journal_read",
+        "bodhisattva.send_email",
+    ]
