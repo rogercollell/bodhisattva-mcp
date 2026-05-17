@@ -66,3 +66,22 @@ def test_malformed_wisdom_frame_json_is_reported(journal: Journal) -> None:
     assert result["found"] is True
     assert result["record"]["wisdom_frame"] is None
     assert result["record"]["wisdom_frame_parse_error"] is True
+
+
+def test_non_object_wisdom_frame_json_is_reported(journal: Journal) -> None:
+    rec_id = journal.create(
+        PauseRecord(
+            draft="d",
+            subject="s",
+            recipient="r@x.com",
+            recipient_context=None,
+            wisdom_frame_json='"just a string"',
+            decision="proceed",
+        )
+    )
+
+    result = handle_journal_read(JournalReadInput(id=rec_id), journal=journal)
+
+    assert result["found"] is True
+    assert result["record"]["wisdom_frame"] is None
+    assert result["record"]["wisdom_frame_parse_error"] is True
